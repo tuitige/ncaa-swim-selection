@@ -1,0 +1,37 @@
+// serverless.yml - AWS Lambda Deployment Configuration
+service: ncaa-swim-selection-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  memorySize: 512
+  timeout: 10
+  environment:
+    NODE_ENV: production
+
+functions:
+  api:
+    handler: lambda.handler
+    events:
+      - http:
+          path: api/{proxy+}
+          method: any
+          cors: true
+
+plugins:
+  - serverless-offline
+  - serverless-http
+  - serverless-deployment-bucket
+
+custom:
+  deploymentBucket:
+    name: ncaa-swim-selection-bucket
+    serverSideEncryption: AES256
+    blockPublicAccess: true
+
+// lambda.js - Express Server for AWS Lambda
+const serverless = require('serverless-http');
+const app = require('./server');
+
+module.exports.handler = serverless(app);
